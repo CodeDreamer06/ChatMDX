@@ -187,4 +187,96 @@ class ConversationProvider with ChangeNotifier {
     _selectedConversationId = _conversations[newIndex].id;
     notifyListeners();
   }
+
+  // Edit a user message and remove all subsequent messages
+  Future<void> editUserMessage(Message message, String newContent) async {
+    if (_selectedConversationId == null) {
+      return;
+    }
+
+    final conversationIndex = _conversations.indexWhere(
+      (conversation) => conversation.id == _selectedConversationId,
+    );
+
+    if (conversationIndex == -1) {
+      return;
+    }
+
+    final conversation = _conversations[conversationIndex];
+    final messageIndex = conversation.messages.indexOf(message);
+
+    if (messageIndex == -1 || !message.isUser) {
+      // Only user messages can be edited
+      return;
+    }
+
+    // Create updated message with new content
+    final updatedMessage = Message(content: newContent, isUser: true);
+
+    // Get only messages up to the edited message
+    final updatedMessages = conversation.messages.sublist(0, messageIndex);
+    // Add the edited message
+    updatedMessages.add(updatedMessage);
+
+    // Update the conversation with only messages up to and including the edited message
+    _conversations[conversationIndex] = conversation.copyWith(
+      messages: updatedMessages,
+      updatedAt: DateTime.now(),
+    );
+
+    _error = null;
+    notifyListeners();
+
+    // Re-send the message to get a new response
+    try {
+      final messages =
+          updatedMessages
+              .map(
+                (msg) => {
+                  'role': msg.isUser ? 'user' : 'assistant',
+                  'content': msg.content,
+                },
+              )
+              .toList();
+
+      // Create an initial empty message for streaming updates
+      final assistantMessage = Message(content: '', isUser: false);
+
+      _conversations[conversationIndex] = _conversations[conversationIndex]
+          .copyWith(
+            messages: [...updatedMessages, assistantMessage],
+            updatedAt: DateTime.now(),
+          );
+
+      _error = null;
+      notifyListeners();
+
+      // Use the streaming API
+      String fullResponse = '';
+      await for (final chunk in _apiService.streamMessage(messages)) {
+        fullResponse += chunk;
+
+        // Update the message content incrementally
+        final currentConversation = _conversations[conversationIndex];
+        final currentMessages = List<Message>.from(
+          currentConversation.messages,
+        );
+        currentMessages[currentMessages.length - 1] = Message(
+          content: fullResponse,
+          isUser: false,
+        );
+
+        _conversations[conversationIndex] = currentConversation.copyWith(
+          messages: currentMessages,
+          updatedAt: DateTime.now(),
+        );
+
+        _error = null;
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 }
