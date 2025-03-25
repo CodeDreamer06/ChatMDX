@@ -28,21 +28,12 @@ class _MessageInputState extends State<MessageInput> {
       _isComposing = false;
     });
 
-    // Add the user message
+    // Add the user message and send it to the API
     final conversationProvider = Provider.of<ConversationProvider>(
       context,
       listen: false,
     );
     conversationProvider.addMessageToSelectedConversation(text, true);
-
-    // In a real app, you would call an API here and then add the response
-    // For now, we'll just simulate a response
-    Future.delayed(const Duration(seconds: 1), () {
-      conversationProvider.addMessageToSelectedConversation(
-        "This is a simulated response. In a real app, this would come from processing your .mdx content.",
-        false,
-      );
-    });
   }
 
   @override
