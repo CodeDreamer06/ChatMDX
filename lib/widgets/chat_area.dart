@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 import '../services/conversation_provider.dart';
@@ -111,7 +112,9 @@ class MessageBubble extends StatelessWidget {
           color: message.isUser ? Colors.blue : Colors.grey[900],
           borderRadius: BorderRadius.circular(12),
         ),
-        child:
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             message.isUser
                 ? SelectableText(
                   message.content,
@@ -167,6 +170,49 @@ class MessageBubble extends StatelessWidget {
                     );
                   },
                 ),
+            // Add copy button for assistant messages
+            if (!message.isUser)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        final clipboardData = ClipboardData(
+                          text: message.content,
+                        );
+                        Clipboard.setData(clipboardData);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Markdown copied to clipboard'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.grey,
+                      ),
+                      label: const Text(
+                        'Copy markdown',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

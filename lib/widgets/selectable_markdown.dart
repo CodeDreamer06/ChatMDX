@@ -5,13 +5,7 @@ import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_highlighter/flutter_highlighter.dart';
 import 'package:flutter_highlighter/themes/dracula.dart';
-import 'package:highlight/languages/javascript.dart';
-import 'package:highlight/languages/dart.dart';
-import 'package:highlight/languages/python.dart';
-import 'package:highlight/languages/cpp.dart';
-import 'package:highlight/languages/json.dart';
-import 'package:highlight/languages/yaml.dart';
-import 'package:highlight/languages/shell.dart';
+import 'package:highlight/languages/all.dart';
 
 class SelectableMarkdown extends StatelessWidget {
   final String data;
@@ -107,22 +101,101 @@ class InlineMathElementBuilder extends MarkdownElementBuilder {
 class CodeElementBuilder extends MarkdownElementBuilder {
   // Map of languages supported by highlight.js
   static final Map<String, String> _languageMap = {
+    // C-family
+    'c': 'c',
+    'cpp': 'cpp',
+    'c++': 'cpp',
+    'c#': 'csharp',
+    'csharp': 'csharp',
+    'cs': 'csharp',
+    'objective-c': 'objectivec',
+    'objc': 'objectivec',
+
+    // JavaScript and related
     'javascript': 'javascript',
     'js': 'javascript',
-    'typescript': 'javascript', // Fallback to JavaScript highlighting
-    'ts': 'javascript',
+    'typescript': 'typescript',
+    'ts': 'typescript',
+    'jsx': 'javascript',
+    'tsx': 'typescript',
+    'node': 'javascript',
+
+    // JVM languages
+    'java': 'java',
+    'kotlin': 'kotlin',
+    'groovy': 'groovy',
+    'scala': 'scala',
+
+    // Other mainstream languages
     'dart': 'dart',
     'python': 'python',
     'py': 'python',
-    'c++': 'cpp',
-    'cpp': 'cpp',
-    'c': 'cpp',
+    'go': 'go',
+    'golang': 'go',
+    'ruby': 'ruby',
+    'rb': 'ruby',
+    'rust': 'rust',
+    'rs': 'rust',
+    'swift': 'swift',
+    'php': 'php',
+    'r': 'r',
+    'perl': 'perl',
+    'lua': 'lua',
+    'haskell': 'haskell',
+    'hs': 'haskell',
+    'elixir': 'elixir',
+    'ex': 'elixir',
+
+    // Data formats
     'json': 'json',
     'yaml': 'yaml',
     'yml': 'yaml',
-    'bash': 'shell',
-    'sh': 'shell',
-    'shell': 'shell',
+    'xml': 'xml',
+    'html': 'xml',
+    'csv': 'plaintext',
+
+    // Web technologies
+    'css': 'css',
+    'scss': 'scss',
+    'sass': 'scss',
+    'less': 'less',
+    'svg': 'xml',
+
+    // Shell/scripting
+    'bash': 'bash',
+    'sh': 'bash',
+    'shell': 'bash',
+    'powershell': 'powershell',
+    'ps': 'powershell',
+    'ps1': 'powershell',
+    'batch': 'dos',
+    'bat': 'dos',
+    'cmd': 'dos',
+
+    // Databases
+    'sql': 'sql',
+    'mysql': 'sql',
+    'postgresql': 'pgsql',
+    'postgres': 'pgsql',
+    'pgsql': 'pgsql',
+    'oracle': 'sql',
+    'mongodb': 'javascript',
+
+    // Config formats
+    'ini': 'ini',
+    'toml': 'ini',
+    'dockerfile': 'dockerfile',
+    'docker': 'dockerfile',
+    'makefile': 'makefile',
+    'make': 'makefile',
+
+    // Other common formats
+    'markdown': 'markdown',
+    'md': 'markdown',
+    'protobuf': 'protobuf',
+    'proto': 'protobuf',
+    'graphql': 'graphql',
+    'gql': 'graphql',
   };
 
   @override
