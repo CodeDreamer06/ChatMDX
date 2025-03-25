@@ -112,107 +112,115 @@ class MessageBubble extends StatelessWidget {
           color: message.isUser ? Colors.blue : Colors.grey[900],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child:
             message.isUser
+                // Simple content for user messages
                 ? SelectableText(
                   message.content,
                   style: const TextStyle(color: Colors.white),
                 )
-                : Builder(
-                  builder: (context) {
-                    // Pre-process content to handle LaTeX math between $...$ delimiters
-                    String processedContent =
-                        SelectableMarkdown.processMathDelimiters(
-                          message.content,
-                        );
-
-                    return SelectableMarkdown(
-                      data: processedContent,
-                      styleSheet: MarkdownStyleSheet(
-                        p: const TextStyle(color: Colors.white, fontSize: 14),
-                        h1: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        h2: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        h3: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        code: TextStyle(
-                          backgroundColor: Colors.grey[800],
-                          color: Colors.white,
-                          fontFamily: 'monospace',
-                        ),
-                        codeblockDecoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        a: const TextStyle(color: Colors.lightBlue),
-                        blockquote: const TextStyle(
-                          color: Colors.white70,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        blockquoteDecoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(2),
-                          border: Border.all(color: Colors.grey[700]!),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-            // Add copy button for assistant messages
-            if (!message.isUser)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                // Column layout only for assistant messages with copy button
+                : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextButton.icon(
-                      onPressed: () {
-                        final clipboardData = ClipboardData(
-                          text: message.content,
-                        );
-                        Clipboard.setData(clipboardData);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Markdown copied to clipboard'),
-                            duration: Duration(seconds: 2),
+                    Builder(
+                      builder: (context) {
+                        // Pre-process content to handle LaTeX math between $...$ delimiters
+                        String processedContent =
+                            SelectableMarkdown.processMathDelimiters(
+                              message.content,
+                            );
+
+                        return SelectableMarkdown(
+                          data: processedContent,
+                          styleSheet: MarkdownStyleSheet(
+                            p: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            h1: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            h2: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            h3: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            code: TextStyle(
+                              backgroundColor: Colors.grey[800],
+                              color: Colors.white,
+                              fontFamily: 'monospace',
+                            ),
+                            codeblockDecoration: BoxDecoration(
+                              color: Colors.grey[800],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            a: const TextStyle(color: Colors.lightBlue),
+                            blockquote: const TextStyle(
+                              color: Colors.white70,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            blockquoteDecoration: BoxDecoration(
+                              color: Colors.grey[800],
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(color: Colors.grey[700]!),
+                            ),
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.grey,
-                      ),
-                      label: const Text(
-                        'Copy markdown',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    // Copy button for assistant messages
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              final clipboardData = ClipboardData(
+                                text: message.content,
+                              );
+                              Clipboard.setData(clipboardData);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Markdown copied to clipboard'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.copy,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
+                            label: const Text(
+                              'Copy markdown',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-          ],
-        ),
       ),
     );
   }
