@@ -41,6 +41,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   flutter_markdown: ^0.6.18
   flutter_math_fork: ^0.7.2
+  flutter_syntax_view: ^4.0.0
 
 dev_dependencies:
   flutter_test:

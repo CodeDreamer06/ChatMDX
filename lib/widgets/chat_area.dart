@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:flutter_math_fork/flutter_math.dart';
-import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
 import '../services/conversation_provider.dart';
 import '../models/conversation.dart';
+import 'selectable_markdown.dart';
 
 class ChatArea extends StatelessWidget {
   const ChatArea({super.key});
@@ -114,58 +113,61 @@ class MessageBubble extends StatelessWidget {
         ),
         child:
             message.isUser
-                ? Text(
+                ? SelectableText(
                   message.content,
                   style: const TextStyle(color: Colors.white),
                 )
-                : MarkdownBody(
-                  data: message.content,
-                  selectable: true,
-                  styleSheet: MarkdownStyleSheet(
-                    p: TextStyle(color: Colors.white, fontSize: 14),
-                    h1: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    h2: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    h3: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    code: TextStyle(
-                      backgroundColor: Colors.grey[800],
-                      color: Colors.white,
-                      fontFamily: 'monospace',
-                    ),
-                    codeblockDecoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  builders: {'math': SimpleMathBuilder()},
-                  extensionSet: md.ExtensionSet.gitHubWeb,
+                : Builder(
+                  builder: (context) {
+                    // Pre-process content to handle LaTeX math between $...$ delimiters
+                    String processedContent =
+                        SelectableMarkdown.processMathDelimiters(
+                          message.content,
+                        );
+
+                    return SelectableMarkdown(
+                      data: processedContent,
+                      styleSheet: MarkdownStyleSheet(
+                        p: const TextStyle(color: Colors.white, fontSize: 14),
+                        h1: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h2: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h3: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        code: TextStyle(
+                          backgroundColor: Colors.grey[800],
+                          color: Colors.white,
+                          fontFamily: 'monospace',
+                        ),
+                        codeblockDecoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        a: const TextStyle(color: Colors.lightBlue),
+                        blockquote: const TextStyle(
+                          color: Colors.white70,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        blockquoteDecoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(2),
+                          border: Border.all(color: Colors.grey[700]!),
+                        ),
+                      ),
+                    );
+                  },
                 ),
       ),
-    );
-  }
-}
-
-// A simplified math builder that can handle basic math expressions
-class SimpleMathBuilder extends MarkdownElementBuilder {
-  @override
-  Widget? visitElementAfter(md.Element element, TextStyle? style) {
-    final String texExpression = element.textContent.replaceAll(r'\$', '');
-
-    return Math.tex(
-      texExpression,
-      textStyle: style,
-      onErrorFallback: (e) => Text(texExpression),
     );
   }
 }

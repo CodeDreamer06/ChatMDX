@@ -44,6 +44,7 @@
 ### **🔹 Install & Run**
 
 #### **📦 Clone & Setup**
+Make sure to create a .env file and set your CABLY_API_KEY
 ```bash
 git clone https://github.com/CodeDreamer06/ChatMDX
 cd ChatMDX
