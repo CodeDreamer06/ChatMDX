@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
-import 'package:flutter_syntax_view/flutter_syntax_view.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:flutter_highlighter/flutter_highlighter.dart';
+import 'package:flutter_highlighter/themes/dracula.dart';
+import 'package:highlight/languages/javascript.dart';
+import 'package:highlight/languages/dart.dart';
+import 'package:highlight/languages/python.dart';
+import 'package:highlight/languages/cpp.dart';
+import 'package:highlight/languages/json.dart';
+import 'package:highlight/languages/yaml.dart';
+import 'package:highlight/languages/shell.dart';
 
 class SelectableMarkdown extends StatelessWidget {
   final String data;
@@ -97,6 +105,26 @@ class InlineMathElementBuilder extends MarkdownElementBuilder {
 
 // Code element builder
 class CodeElementBuilder extends MarkdownElementBuilder {
+  // Map of languages supported by highlight.js
+  static final Map<String, String> _languageMap = {
+    'javascript': 'javascript',
+    'js': 'javascript',
+    'typescript': 'javascript', // Fallback to JavaScript highlighting
+    'ts': 'javascript',
+    'dart': 'dart',
+    'python': 'python',
+    'py': 'python',
+    'c++': 'cpp',
+    'cpp': 'cpp',
+    'c': 'cpp',
+    'json': 'json',
+    'yaml': 'yaml',
+    'yml': 'yaml',
+    'bash': 'shell',
+    'sh': 'shell',
+    'shell': 'shell',
+  };
+
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? style) {
     String language = '';
@@ -109,6 +137,9 @@ class CodeElementBuilder extends MarkdownElementBuilder {
         language = classAttr.substring(9);
       }
     }
+
+    // Get the mapped language or fallback to plain text
+    final String mappedLanguage = _languageMap[language.toLowerCase()] ?? '';
 
     return Builder(
       builder:
@@ -162,16 +193,42 @@ class CodeElementBuilder extends MarkdownElementBuilder {
                       ],
                     ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SelectableText(
-                    code,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
-                      color: Colors.white,
-                      height: 1.5,
-                    ),
+                // Use Highlighter with a dark theme for highlighting
+                ClipRRect(
+                  borderRadius:
+                      language.isEmpty
+                          ? BorderRadius.circular(8)
+                          : BorderRadius.only(
+                            bottomLeft: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child:
+                        mappedLanguage.isNotEmpty
+                            ? HighlightView(
+                              code,
+                              language: mappedLanguage,
+                              theme: draculaTheme,
+                              textStyle: const TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                              padding: const EdgeInsets.all(16),
+                            )
+                            : Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SelectableText(
+                                code,
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
                   ),
                 ),
               ],
